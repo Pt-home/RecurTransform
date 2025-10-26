@@ -37,6 +37,9 @@
 
     <div class="section" id="sec-scale">
       <h4>Scale</h4>
+      <div class="options">
+        <label><input id="uniform" type="checkbox" checked>Uniform scale</label><br>
+      </div>
       <div class="row">
         <label for="scaleHRange">Horizontal</label>
         <input id="scaleHRange" type="range" min="1" max="400" step="1" value="100">
@@ -48,7 +51,6 @@
         <div class="input-wrap"><input id="scaleV" type="number" min="1" max="400" step="1" value="100" aria-label="Vertical scale"><span class="unit">%</span></div>
       </div>
       <div class="options">
-        <label><input id="uniform" type="checkbox" checked>Uniform scale</label><br>
         <label><input id="reflectX" type="checkbox">Reflect X (flip horizontal)</label>
         <label><input id="reflectY" type="checkbox">Reflect Y (flip vertical)</label>
       </div>
@@ -279,3 +281,4 @@
   </script>
 </body>
 </html>
+
