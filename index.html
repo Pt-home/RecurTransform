@@ -32,7 +32,7 @@
 </head>
 <body>
   <div class="page">
-    <h3>RecurTransform</h3>
+    <h3>RecurTransform1</h3>
 
     <div class="section" id="sec-scale">
       <h4>Scale</h4>
@@ -128,35 +128,20 @@
       r.addEventListener('input', sync(r, n));
       n.addEventListener('input', sync(n, r));
     }
-
     function setScale(axis, v){
-      if(axis === 'H'){
-        document.getElementById('scaleHRange').value = v;
-        document.getElementById('scaleH').value = v;
-      }else{
-        document.getElementById('scaleVRange').value = v;
-        document.getElementById('scaleV').value = v;
-      }
+      if(axis === 'H'){ document.getElementById('scaleHRange').value = v; document.getElementById('scaleH').value = v; }
+      else { document.getElementById('scaleVRange').value = v; document.getElementById('scaleV').value = v; }
     }
-
     document.addEventListener('DOMContentLoaded', () => {
-      bindPair('scaleHRange', 'scaleH', v => {
-        if (document.getElementById('uniform').checked) setScale('V', v);
-      });
-      bindPair('scaleVRange', 'scaleV', v => {
-        if (document.getElementById('uniform').checked) setScale('H', v);
-      });
+      bindPair('scaleHRange', 'scaleH', v => { if (document.getElementById('uniform').checked) setScale('V', v); });
+      bindPair('scaleVRange', 'scaleV', v => { if (document.getElementById('uniform').checked) setScale('H', v); });
       bindPair('moveHRange', 'moveH');
       bindPair('moveVRange', 'moveV');
       bindPair('angleRange', 'angle');
       bindPair('jitScaleRange', 'jitScale');
       bindPair('jitMoveRange',  'jitMove');
       bindPair('jitAngleRange', 'jitAngle');
-
-      document.getElementById('uniform').addEventListener('change', (e) => {
-        if (e.target.checked) setScale('V', document.getElementById('scaleH').value);
-      });
-
+      document.getElementById('uniform').addEventListener('change', (e) => { if (e.target.checked) setScale('V', document.getElementById('scaleH').value); });
       const grid = document.getElementById('anchorGrid');
       grid.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-anchor]');
@@ -165,7 +150,6 @@
         btn.classList.add('active');
         document.getElementById('anchorValue').value = btn.dataset.anchor;
       });
-
       document.getElementById('applyBtn').addEventListener('click', applyTransform);
     });
 
@@ -173,27 +157,26 @@
       const applyBtn = document.getElementById('applyBtn');
       applyBtn.disabled = true;
 
-      const scaleH = parseFloat(document.getElementById('scaleH').value) || 100;
-      const scaleV = parseFloat(document.getElementById('scaleV').value) || 100;
-      const moveH  = parseFloat(document.getElementById('moveH').value)  || 0;
-      const moveV  = parseFloat(document.getElementById('moveV').value)  || 0;
-      const angle  = parseFloat(document.getElementById('angle').value)  || 0;
+      const sH = parseFloat(document.getElementById('scaleH').value) || 100;
+      const sV = parseFloat(document.getElementById('scaleV').value) || 100;
+      const mH  = parseFloat(document.getElementById('moveH').value)  || 0;
+      const mV  = parseFloat(document.getElementById('moveV').value)  || 0;
+      const ang = parseFloat(document.getElementById('angle').value)  || 0;
       const copies = Math.max(0, parseInt(document.getElementById('copies').value || "0", 10));
 
       const uniform = document.getElementById('uniform').checked;
       const reflectX = document.getElementById('reflectX').checked;
       const reflectY = document.getElementById('reflectY').checked;
 
-      const jitScale = Math.max(0, parseFloat(document.getElementById('jitScale').value) || 0);
-      const jitMove  = Math.max(0, parseFloat(document.getElementById('jitMove').value)  || 0);
-      const jitAngle = Math.max(0, parseFloat(document.getElementById('jitAngle').value) || 0);
+      const jS = Math.max(0, parseFloat(document.getElementById('jitScale').value) || 0);
+      const jM = Math.max(0, parseFloat(document.getElementById('jitMove').value)  || 0);
+      const jA = Math.max(0, parseFloat(document.getElementById('jitAngle').value) || 0);
 
       const anchor = (document.getElementById('anchorValue').value || 'MIDDLECENTER').toUpperCase().replace(/\s+/g,'').trim();
 
       const scriptString = `
 (function(){
   function cID(s){ return charIDToTypeID(String(s)); }
-  function randRange(a){ return (Math.random()*2 - 1) * a; }
   function qcs(a){
     a = String(a||"MIDDLECENTER").toUpperCase().replace(/\\s+/g,'').trim();
     switch(a){
@@ -209,37 +192,20 @@
       default:              return "Qcsa";
     }
   }
-  function refTargetLayer(){
-    var r = new ActionReference();
-    r.putEnumerated(cID("Lyr "), cID("Ordn"), cID("Trgt"));
-    return r;
-  }
-  function duplicateActiveLayer(){
-    var d = new ActionDescriptor();
-    d.putReference(cID("null"), refTargetLayer());
-    executeAction(cID("Dplc"), d, DialogModes.NO);
-  }
-  function renameActiveLayer(name){
-    try{
-      var d = new ActionDescriptor();
-      d.putReference(cID("null"), refTargetLayer());
-      var t = new ActionDescriptor();
-      t.putString(cID("Nm  "), String(name));
-      d.putObject(cID("T   "), cID("Lyr "), t);
-      executeAction(cID("setd"), d, DialogModes.NO);
-    }catch(e){}
-  }
+  function refTargetLayer(){ var r=new ActionReference(); r.putEnumerated(cID("Lyr "), cID("Ordn"), cID("Trgt")); return r; }
+  function duplicateActiveLayer(){ var d=new ActionDescriptor(); d.putReference(cID("null"), refTargetLayer()); executeAction(cID("Dplc"), d, DialogModes.NO); }
+  function renameActiveLayer(name){ try{ var d=new ActionDescriptor(); d.putReference(cID("null"), refTargetLayer()); var t=new ActionDescriptor(); t.putString(cID("Nm  "), String(name)); d.putObject(cID("T   "), cID("Lyr "), t); executeAction(cID("setd"), d, DialogModes.NO);}catch(e){} }
   function transformActiveLayer(hPct, vPct, dxPx, dyPx, angleDeg, anchorStr){
-    var desc = new ActionDescriptor();
+    var desc=new ActionDescriptor();
     desc.putReference(cID("null"), refTargetLayer());
-    try { desc.putEnumerated(cID("FTcs"), cID("QCSt"), cID(qcs(anchorStr))); } catch(e) {}
-    var ofs = new ActionDescriptor();
+    try{ desc.putEnumerated(cID("FTcs"), cID("QCSt"), cID(qcs(anchorStr))); }catch(e){}
+    var ofs=new ActionDescriptor();
     ofs.putUnitDouble(cID("Hrzn"), cID("#Pxl"), dxPx);
     ofs.putUnitDouble(cID("Vrtc"), cID("#Pxl"), dyPx);
     desc.putObject(cID("Ofst"), cID("Ofst"), ofs);
     desc.putUnitDouble(cID("Wdth"), cID("#Prc"), hPct);
     desc.putUnitDouble(cID("Hght"), cID("#Prc"), vPct);
-    var skew = new ActionDescriptor();
+    var skew=new ActionDescriptor();
     skew.putUnitDouble(cID("Hrzn"), cID("#Ang"), 0.0);
     skew.putUnitDouble(cID("Vrtc"), cID("#Ang"), 0.0);
     desc.putObject(cID("Skew"), cID("Pnt "), skew);
@@ -247,36 +213,31 @@
     desc.putEnumerated(cID("Intr"), cID("Intp"), cID("Bcbc"));
     executeAction(cID("transform"), desc, DialogModes.NO);
   }
-  var copies = Math.max(1, ${copies});
-  var baseH  = (${scaleH}||100) * (${reflectX} ? -1 : 1);
-  var baseV  = (${scaleV}||100) * (${reflectY} ? -1 : 1);
-  var uniform = ${uniform};
-  var jitS = ${jitScale};
-  var jitM = ${jitMove};
-  var jitA = ${jitAngle};
-  var dxBase = ${moveH};
-  var dyBase = ${moveV};
-  var angBase = ${angle};
-  var anchor  = "${anchor}";
-  for (var i=1; i<=copies; i++){
+  function rr(a){ return (Math.random()*2-1)*a; }
+
+  var doc=app.activeDocument, base=doc.activeLayer;
+  var dSH=${sH}-100, dSV=${sV}-100;
+  var signX=${reflectX}?-1:1, signY=${reflectY}?-1:1;
+  for(var i=1;i<=Math.max(1,${copies});i++){
+    doc.activeLayer=base;
     duplicateActiveLayer();
-    var hS, vS;
-    if (uniform){
-      var sJ = randRange(jitS);
-      hS = baseH + sJ; vS = baseV + sJ;
-    } else {
-      hS = baseH + randRange(jitS);
-      vS = baseV + randRange(jitS);
+    var sStepH=100 + i*dSH;
+    var sStepV=100 + i*dSV;
+    if(${uniform}) sStepV=sStepH;
+    if(${jS}>0){
+      var j=${jS};
+      if(${uniform}){ var js=rr(j); sStepH+=js; sStepV+=js; }
+      else { sStepH+=rr(j); sStepV+=rr(j); }
     }
-    var dX  = dxBase + randRange(jitM);
-    var dY  = dyBase + randRange(jitM);
-    var ang = angBase + randRange(jitA);
-    transformActiveLayer(hS, vS, dX, dY, ang, anchor);
-    renameActiveLayer("Transform_" + i);
+    sStepH*=signX; sStepV*=signY;
+    var dx=i*${mH} + rr(${jM});
+    var dy=i*${mV} + rr(${jM});
+    var ang=i*${ang} + rr(${jA});
+    transformActiveLayer(sStepH, sStepV, dx, dy, ang, "${anchor}");
+    renameActiveLayer("Transform_"+i);
   }
 })();`;
 
-      console.log(scriptString);
       window.parent.postMessage(scriptString, "*");
       setTimeout(() => { applyBtn.disabled = false; }, 800);
     }
