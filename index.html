@@ -1,1 +1,285 @@
-<!DOCTYPE html> <html> <head> <meta charset="utf-8" /> <title>RecurTransform</title> <style> html, body { height:100%; } body { background:#474747; user-select:none; margin:0; padding:0; overflow:auto; } body, input, label, button { font-family:"Open Sans", Sans-Serif; font-size:12px; color:#d5d5d5; } .page { padding:10px 12px 20px; margin:0 auto; max-width:560px; } h3 { text-align:center; line-height:1.1; margin:10px 0 14px; } .section { background:#3a3a3a; border:1px solid #2c2c2c; border-radius:6px; padding:10px 12px 12px; margin-bottom:10px; } .section h4 { margin:0 0 8px; font-weight:600; font-size:12px; color:#e8e8e8; } .row { display:grid; grid-template-columns: 90px 1fr 120px; gap:8px; align-items:center; margin:6px 0; } .row-suffix { display:grid; grid-template-columns: 90px 120px; gap:8px; align-items:center; margin:6px 0; } input[type="range"]{ width:100%; appearance:none; height:3px; background:#2b2b2b; border-radius:2px; outline:none; } input[type="range"]::-webkit-slider-thumb{ appearance:none; width:12px; height:12px; border-radius:50%; background:#3482f6; border:none; cursor:pointer; } input[type="number"]{ background:#252525; border:1px solid #252525; border-radius:3px; transition:border .2s; padding:4px 6px; box-sizing:border-box; width:84px; color:#e3e3e3; } input[type="number"]:hover, input[type="number"]:focus { border:1px solid #3482f6; outline:none; } .input-wrap{ display:flex; align-items:center; justify-content:flex-end; gap:6px; } .unit{ color:#bcbcbc; } .options { display:flex; flex-wrap:wrap; gap:14px 18px; align-items:center; margin-top:6px; } .options label { display:flex; align-items:center; gap:6px; } .anchor-wrap { display:grid; grid-template-columns: 60px 1fr; align-items:center; gap:10px; margin-top:6px; } .muted{ color:#bfbfbf; font-size:11px; } .anchor-grid{ display:grid; grid-template-columns:repeat(3,14px); grid-template-rows:repeat(3,14px); gap:3px; padding:3px; background:#2f2f2f; border-radius:6px; border:1px solid #2a2a2a; width:max-content; } .anchor-grid button{ width:14px; height:14px; border-radius:3px; border:1px solid #1e1e1e; background:#3b3b3b; cursor:pointer; padding:0; } .anchor-grid button.active{ outline:2px solid #3482f6; background:#4a4a4a; } .button{ background:#606060; margin:10px 0 0 0; border-radius:4px; border-top:1px solid rgba(255,255,255,.15); border-bottom:1px solid rgba(0,0,0,.6); border-left:0; border-right:0; padding:10px; font-size:13px; width:100%; cursor:pointer; } .button:hover{ background:#6a6a6a; } .progress{ text-align:center; min-height:18px; } </style> </head> <body> <div class="page"> <h3>RecurTransform</h3> <div class="section" id="sec-scale"> <h4>Scale</h4> <div class="options"> <label><input id="uniform" type="checkbox" checked>Uniform scale</label><br> </div> <div class="row"> <label for="scaleHRange">Horizontal</label> <input id="scaleHRange" type="range" min="1" max="400" step="1" value="100"> <div class="input-wrap"><input id="scaleH" type="number" min="1" max="400" step="1" value="100" aria-label="Horizontal scale"><span class="unit">%</span></div> </div> <div class="row"> <label for="scaleVRange">Vertical</label> <input id="scaleVRange" type="range" min="1" max="400" step="1" value="100"> <div class="input-wrap"><input id="scaleV" type="number" min="1" max="400" step="1" value="100" aria-label="Vertical scale"><span class="unit">%</span></div> </div> <div class="options"> <label><input id="reflectX" type="checkbox">Reflect X (flip horizontal)</label> <label><input id="reflectY" type="checkbox">Reflect Y (flip vertical)</label> </div> </div> <div class="section" id="sec-move"> <h4>Move</h4> <div class="row"> <label for="moveHRange">Horizontal</label> <input id="moveHRange" type="range" min="-2000" max="2000" step="1" value="0"> <div class="input-wrap"><input id="moveH" type="number" min="-2000" max="2000" step="1" value="0" aria-label="Move horizontal"><span class="unit">px</span></div> </div> <div class="row"> <label for="moveVRange">Vertical</label> <input id="moveVRange" type="range" min="-2000" max="2000" step="1" value="0"> <div class="input-wrap"><input id="moveV" type="number" min="-2000" max="2000" step="1" value="0" aria-label="Move vertical"><span class="unit">px</span></div> </div> </div> <div class="section" id="sec-rotate"> <h4>Rotate</h4> <div class="row"> <label for="angleRange">Angle</label> <input id="angleRange" type="range" min="-180" max="180" step="1" value="0"> <div class="input-wrap"><input id="angle" type="number" min="-180" max="180" step="1" value="0" aria-label="Angle"><span class="unit">°</span></div> </div> <div class="row-suffix"> <label for="copies">Copies</label> <div class="input-wrap"><input id="copies" type="number" min="0" max="128" step="1" value="2" aria-label="Copies"></div> </div> <div class="anchor-wrap"> <span class="muted">Anchor</span> <div class="anchor-grid" id="anchorGrid" role="radiogroup" aria-label="Anchor point"> <button type="button" data-anchor="TOPLEFT" aria-label="Top Left"></button> <button type="button" data-anchor="TOPCENTER" aria-label="Top Center"></button> <button type="button" data-anchor="TOPRIGHT" aria-label="Top Right"></button> <button type="button" data-anchor="MIDDLELEFT" aria-label="Middle Left"></button> <button type="button" data-anchor="MIDDLECENTER" aria-label="Middle Center" class="active"></button> <button type="button" data-anchor="MIDDLERIGHT" aria-label="Middle Right"></button> <button type="button" data-anchor="BOTTOMLEFT" aria-label="Bottom Left"></button> <button type="button" data-anchor="BOTTOMCENTER" aria-label="Bottom Center"></button> <button type="button" data-anchor="BOTTOMRIGHT" aria-label="Bottom Right"></button> </div> </div> <input type="hidden" id="anchorValue" value="MIDDLECENTER"> </div> <div class="section" id="sec-random"> <h4>Randomize (±)</h4> <div class="row"> <label for="jitScaleRange">Scale</label> <input id="jitScaleRange" type="range" min="0" max="200" step="1" value="0"> <div class="input-wrap"><input id="jitScale" type="number" min="0" max="200" step="1" value="0" aria-label="Scale jitter"><span class="unit">%</span></div> </div> <div class="row"> <label for="jitMoveRange">Move</label> <input id="jitMoveRange" type="range" min="0" max="500" step="1" value="0"> <div class="input-wrap"><input id="jitMove" type="number" min="0" max="500" step="1" value="0" aria-label="Move jitter"><span class="unit">px</span></div> </div> <div class="row"> <label for="jitAngleRange">Angle</label> <input id="jitAngleRange" type="range" min="0" max="180" step="1" value="0"> <div class="input-wrap"><input id="jitAngle" type="number" min="0" max="180" step="1" value="0" aria-label="Angle jitter"><span class="unit">°</span></div> </div> </div> <button id="applyBtn" type="button" class="button">Apply Transform (New Layer)</button> <div class="progress"> <p id="indi" style="visibility:hidden;">Runtime (ms): <span id="runtime">0</span></p> <p id="working" style="visibility:hidden;">Working…</p> </div> </div> <script> function bindPair(rangeId, numberId, onChange) { const r = document.getElementById(rangeId); const n = document.getElementById(numberId); const sync = (src, dst) => () => { dst.value = src.value; if (onChange) onChange(parseFloat(src.value)); }; r.addEventListener('input', sync(r, n)); n.addEventListener('input', sync(n, r)); } document.addEventListener('DOMContentLoaded', () => { bindPair('scaleHRange', 'scaleH', v => { if (document.getElementById('uniform').checked) { document.getElementById('scaleVRange').value = v; document.getElementById('scaleV').value = v; } }); bindPair('scaleVRange', 'scaleV'); bindPair('moveHRange', 'moveH'); bindPair('moveVRange', 'moveV'); bindPair('angleRange', 'angle'); bindPair('jitScaleRange', 'jitScale'); bindPair('jitMoveRange', 'jitMove'); bindPair('jitAngleRange', 'jitAngle'); const grid = document.getElementById('anchorGrid'); grid.addEventListener('click', (e) => { const btn = e.target.closest('button[data-anchor]'); if (!btn) return; grid.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.getElementById('anchorValue').value = btn.dataset.anchor; }); document.getElementById('applyBtn').addEventListener('click', applyTransform); }); function applyTransform(){ const applyBtn = document.getElementById('applyBtn'); const indi = document.getElementById("indi"); const working = document.getElementById("working"); applyBtn.disabled = true; working.style.visibility = "visible"; indi.style.visibility = "hidden"; const scaleH = parseFloat(document.getElementById('scaleH').value) || 100; const scaleV = parseFloat(document.getElementById('scaleV').value) || 100; const moveH = parseFloat(document.getElementById('moveH').value) || 0; const moveV = parseFloat(document.getElementById('moveV').value) || 0; const angle = parseFloat(document.getElementById('angle').value) || 0; const copies = Math.max(0, parseInt(document.getElementById('copies').value || "0", 10)); const uniform = document.getElementById('uniform').checked; const reflectX = document.getElementById('reflectX').checked; const reflectY = document.getElementById('reflectY').checked; const jitScale = Math.max(0, parseFloat(document.getElementById('jitScale').value) || 0); const jitMove = Math.max(0, parseFloat(document.getElementById('jitMove').value) || 0); const jitAngle = Math.max(0, parseFloat(document.getElementById('jitAngle').value) || 0); const anchor = (document.getElementById('anchorValue').value || 'MIDDLECENTER').toUpperCase().replace(/\s+/g,'').trim(); const scriptString = (function(){ function cID(s){ return charIDToTypeID(String(s)); } function randRange(a){ return (Math.random()*2 - 1) * a; } function qcs(a){ a = String(a||"MIDDLECENTER").toUpperCase().replace(/\\s+/g,'').trim(); switch(a){ case "TOPLEFT": return "Qcs0"; case "TOPCENTER": return "Qcs4"; case "TOPRIGHT": return "Qcs1"; case "MIDDLELEFT": return "Qcs7"; case "MIDDLECENTER": return "Qcsa"; case "MIDDLERIGHT": return "Qcs5"; case "BOTTOMLEFT": return "Qcs3"; case "BOTTOMCENTER": return "Qcs6"; case "BOTTOMRIGHT": return "Qcs2"; default: return "Qcsa"; } } function refTargetLayer(){ var r = new ActionReference(); r.putEnumerated(cID("Lyr "), cID("Ordn"), cID("Trgt")); return r; } function duplicateActiveLayer(){ var d = new ActionDescriptor(); d.putReference(cID("null"), refTargetLayer()); executeAction(cID("Dplc"), d, DialogModes.NO); } function renameActiveLayer(name){ try{ var d = new ActionDescriptor(); d.putReference(cID("null"), refTargetLayer()); var t = new ActionDescriptor(); t.putString(cID("Nm "), String(name)); d.putObject(cID("T "), cID("Lyr "), t); executeAction(cID("setd"), d, DialogModes.NO); }catch(e){} } function transformActiveLayer(hPct, vPct, dxPx, dyPx, angleDeg, anchorStr){ var desc = new ActionDescriptor(); desc.putReference(cID("null"), refTargetLayer()); try { desc.putEnumerated(cID("FTcs"), cID("QCSt"), cID(qcs(anchorStr))); } catch(e) {} var ofs = new ActionDescriptor(); ofs.putUnitDouble(cID("Hrzn"), cID("#Pxl"), dxPx); ofs.putUnitDouble(cID("Vrtc"), cID("#Pxl"), dyPx); desc.putObject(cID("Ofst"), cID("Ofst"), ofs); desc.putUnitDouble(cID("Wdth"), cID("#Prc"), hPct); desc.putUnitDouble(cID("Hght"), cID("#Prc"), vPct); var skew = new ActionDescriptor(); skew.putUnitDouble(cID("Hrzn"), cID("#Ang"), 0.0); skew.putUnitDouble(cID("Vrtc"), cID("#Ang"), 0.0); desc.putObject(cID("Skew"), cID("Pnt "), skew); desc.putUnitDouble(cID("Angl"), cID("#Ang"), angleDeg); desc.putEnumerated(cID("Intr"), cID("Intp"), cID("Bcbc")); executeAction(cID("transform"), desc, DialogModes.NO); } var copies = Math.max(1, ${copies}); var baseH = (${scaleH}||100) * (${reflectX} ? -1 : 1); var baseV = (${scaleV}||100) * (${reflectY} ? -1 : 1); var uniform = ${uniform}; var jitS = ${jitScale}; var jitM = ${jitMove}; var jitA = ${jitAngle}; var dxBase = ${moveH}; var dyBase = ${moveV}; var angBase = ${angle}; var anchor = "${anchor}"; for (var i=1; i<=copies; i++){ duplicateActiveLayer(); var hS, vS; if (uniform){ var sJ = randRange(jitS); hS = baseH + sJ; vS = baseV + sJ; } else { hS = baseH + randRange(jitS); vS = baseV + randRange(jitS); } var dX = dxBase + randRange(jitM); var dY = dyBase + randRange(jitM); var ang = angBase + randRange(jitA); transformActiveLayer(hS, vS, dX, dY, ang, anchor); renameActiveLayer("Transform_" + i); } })();; window.__transformStartTime = new Date(); window.parent.postMessage(scriptString, "*"); setTimeout(() => { applyBtn.disabled = false; }, 1000); } </script> </body> </html>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>RecurTransform</title>
+  <style>
+    html, body { height:100%; }
+    body { background:#474747; user-select:none; margin:0; padding:0; overflow:auto; }
+    body, input, label, button { font-family:"Open Sans", Sans-Serif; font-size:12px; color:#d5d5d5; }
+    .page { padding:10px 12px 20px; margin:0 auto; max-width:560px; }
+    h3 { text-align:center; line-height:1.1; margin:10px 0 14px; }
+    .section { background:#3a3a3a; border:1px solid #2c2c2c; border-radius:6px; padding:10px 12px 12px; margin-bottom:10px; }
+    .section h4 { margin:0 0 8px; font-weight:600; font-size:12px; color:#e8e8e8; }
+    .row { display:grid; grid-template-columns: 90px 1fr 120px; gap:8px; align-items:center; margin:6px 0; }
+    .row-suffix { display:grid; grid-template-columns: 90px 120px; gap:8px; align-items:center; margin:6px 0; }
+    input[type="range"]{ width:100%; appearance:none; height:3px; background:#2b2b2b; border-radius:2px; outline:none; }
+    input[type="range"]::-webkit-slider-thumb{ appearance:none; width:12px; height:12px; border-radius:50%; background:#3482f6; border:none; cursor:pointer; }
+    input[type="number"]{ background:#252525; border:1px solid #252525; border-radius:3px; transition:border .2s; padding:4px 6px; box-sizing:border-box; width:84px; color:#e3e3e3; }
+    input[type="number"]:hover, input[type="number"]:focus { border:1px solid #3482f6; outline:none; }
+    .input-wrap{ display:flex; align-items:center; justify-content:flex-end; gap:6px; }
+    .unit{ color:#bcbcbc; }
+    .options { display:flex; flex-wrap:wrap; gap:14px 18px; align-items:center; margin-top:6px; }
+    .options label { display:flex; align-items:center; gap:6px; }
+    .anchor-wrap { display:grid; grid-template-columns: 60px 1fr; align-items:center; gap:10px; margin-top:6px; }
+    .muted{ color:#bfbfbf; font-size:11px; }
+    .anchor-grid{ display:grid; grid-template-columns:repeat(3,14px); grid-template-rows:repeat(3,14px); gap:3px; padding:3px; background:#2f2f2f; border-radius:6px; border:1px solid #2a2a2a; width:max-content; }
+    .anchor-grid button{ width:14px; height:14px; border-radius:3px; border:1px solid #1e1e1e; background:#3b3b3b; cursor:pointer; padding:0; }
+    .anchor-grid button.active{ outline:2px solid #3482f6; background:#4a4a4a; }
+    .button{ background:#606060; margin:10px 0 0 0; border-radius:4px; border-top:1px solid rgba(255,255,255,.15); border-bottom:1px solid rgba(0,0,0,.6); border-left:0; border-right:0; padding:10px; font-size:13px; width:100%; cursor:pointer; }
+    .button:hover{ background:#6a6a6a; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h3>RecurTransform</h3>
+
+    <div class="section" id="sec-scale">
+      <h4>Scale</h4>
+      <div class="options">
+        <label><input id="uniform" type="checkbox" checked>Uniform scale</label>
+      </div>
+      <div class="row">
+        <label for="scaleHRange">Horizontal</label>
+        <input id="scaleHRange" type="range" min="1" max="400" step="1" value="100">
+        <div class="input-wrap"><input id="scaleH" type="number" min="1" max="400" step="1" value="100" aria-label="Horizontal scale"><span class="unit">%</span></div>
+      </div>
+      <div class="row">
+        <label for="scaleVRange">Vertical</label>
+        <input id="scaleVRange" type="range" min="1" max="400" step="1" value="100">
+        <div class="input-wrap"><input id="scaleV" type="number" min="1" max="400" step="1" value="100" aria-label="Vertical scale"><span class="unit">%</span></div>
+      </div>
+      <div class="options">
+        <label><input id="reflectX" type="checkbox">Reflect X (flip horizontal)</label>
+        <label><input id="reflectY" type="checkbox">Reflect Y (flip vertical)</label>
+      </div>
+    </div>
+
+    <div class="section" id="sec-move">
+      <h4>Move</h4>
+      <div class="row">
+        <label for="moveHRange">Horizontal</label>
+        <input id="moveHRange" type="range" min="-2000" max="2000" step="1" value="0">
+        <div class="input-wrap"><input id="moveH" type="number" min="-2000" max="2000" step="1" value="0" aria-label="Move horizontal"><span class="unit">px</span></div>
+      </div>
+      <div class="row">
+        <label for="moveVRange">Vertical</label>
+        <input id="moveVRange" type="range" min="-2000" max="2000" step="1" value="0">
+        <div class="input-wrap"><input id="moveV" type="number" min="-2000" max="2000" step="1" value="0" aria-label="Move vertical"><span class="unit">px</span></div>
+      </div>
+    </div>
+
+    <div class="section" id="sec-rotate">
+      <h4>Rotate</h4>
+      <div class="row">
+        <label for="angleRange">Angle</label>
+        <input id="angleRange" type="range" min="-180" max="180" step="1" value="0">
+        <div class="input-wrap"><input id="angle" type="number" min="-180" max="180" step="1" value="0" aria-label="Angle"><span class="unit">°</span></div>
+      </div>
+      <div class="row-suffix">
+        <label for="copies">Copies</label>
+        <div class="input-wrap"><input id="copies" type="number" min="0" max="128" step="1" value="2" aria-label="Copies"></div>
+      </div>
+
+      <div class="anchor-wrap">
+        <span class="muted">Anchor</span>
+        <div class="anchor-grid" id="anchorGrid" role="radiogroup" aria-label="Anchor point">
+          <button type="button" data-anchor="TOPLEFT" aria-label="Top Left"></button>
+          <button type="button" data-anchor="TOPCENTER" aria-label="Top Center"></button>
+          <button type="button" data-anchor="TOPRIGHT" aria-label="Top Right"></button>
+          <button type="button" data-anchor="MIDDLELEFT" aria-label="Middle Left"></button>
+          <button type="button" data-anchor="MIDDLECENTER" aria-label="Middle Center" class="active"></button>
+          <button type="button" data-anchor="MIDDLERIGHT" aria-label="Middle Right"></button>
+          <button type="button" data-anchor="BOTTOMLEFT" aria-label="Bottom Left"></button>
+          <button type="button" data-anchor="BOTTOMCENTER" aria-label="Bottom Center"></button>
+          <button type="button" data-anchor="BOTTOMRIGHT" aria-label="Bottom Right"></button>
+        </div>
+      </div>
+      <input type="hidden" id="anchorValue" value="MIDDLECENTER">
+    </div>
+
+    <div class="section" id="sec-random">
+      <h4>Randomize (±)</h4>
+      <div class="row">
+        <label for="jitScaleRange">Scale</label>
+        <input id="jitScaleRange" type="range" min="0" max="200" step="1" value="0">
+        <div class="input-wrap"><input id="jitScale" type="number" min="0" max="200" step="1" value="0" aria-label="Scale jitter"><span class="unit">%</span></div>
+      </div>
+      <div class="row">
+        <label for="jitMoveRange">Move</label>
+        <input id="jitMoveRange" type="range" min="0" max="500" step="1" value="0">
+        <div class="input-wrap"><input id="jitMove" type="number" min="0" max="500" step="1" value="0" aria-label="Move jitter"><span class="unit">px</span></div>
+      </div>
+      <div class="row">
+        <label for="jitAngleRange">Angle</label>
+        <input id="jitAngleRange" type="range" min="0" max="180" step="1" value="0">
+        <div class="input-wrap"><input id="jitAngle" type="number" min="0" max="180" step="1" value="0" aria-label="Angle jitter"><span class="unit">°</span></div>
+      </div>
+    </div>
+
+    <button id="applyBtn" type="button" class="button">Apply Transform (New Layer)</button>
+  </div>
+
+  <script>
+    function bindPair(rangeId, numberId, onChange) {
+      const r = document.getElementById(rangeId);
+      const n = document.getElementById(numberId);
+      const sync = (src, dst) => () => { dst.value = src.value; if (onChange) onChange(parseFloat(src.value)); };
+      r.addEventListener('input', sync(r, n));
+      n.addEventListener('input', sync(n, r));
+    }
+
+    function setScale(axis, v){
+      if(axis === 'H'){
+        document.getElementById('scaleHRange').value = v;
+        document.getElementById('scaleH').value = v;
+      }else{
+        document.getElementById('scaleVRange').value = v;
+        document.getElementById('scaleV').value = v;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      bindPair('scaleHRange', 'scaleH', v => {
+        if (document.getElementById('uniform').checked) setScale('V', v);
+      });
+      bindPair('scaleVRange', 'scaleV', v => {
+        if (document.getElementById('uniform').checked) setScale('H', v);
+      });
+      bindPair('moveHRange', 'moveH');
+      bindPair('moveVRange', 'moveV');
+      bindPair('angleRange', 'angle');
+      bindPair('jitScaleRange', 'jitScale');
+      bindPair('jitMoveRange',  'jitMove');
+      bindPair('jitAngleRange', 'jitAngle');
+
+      document.getElementById('uniform').addEventListener('change', (e) => {
+        if (e.target.checked) setScale('V', document.getElementById('scaleH').value);
+      });
+
+      const grid = document.getElementById('anchorGrid');
+      grid.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-anchor]');
+        if (!btn) return;
+        grid.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('anchorValue').value = btn.dataset.anchor;
+      });
+
+      document.getElementById('applyBtn').addEventListener('click', applyTransform);
+    });
+
+    function applyTransform(){
+      const applyBtn = document.getElementById('applyBtn');
+      applyBtn.disabled = true;
+
+      const scaleH = parseFloat(document.getElementById('scaleH').value) || 100;
+      const scaleV = parseFloat(document.getElementById('scaleV').value) || 100;
+      const moveH  = parseFloat(document.getElementById('moveH').value)  || 0;
+      const moveV  = parseFloat(document.getElementById('moveV').value)  || 0;
+      const angle  = parseFloat(document.getElementById('angle').value)  || 0;
+      const copies = Math.max(0, parseInt(document.getElementById('copies').value || "0", 10));
+
+      const uniform = document.getElementById('uniform').checked;
+      const reflectX = document.getElementById('reflectX').checked;
+      const reflectY = document.getElementById('reflectY').checked;
+
+      const jitScale = Math.max(0, parseFloat(document.getElementById('jitScale').value) || 0);
+      const jitMove  = Math.max(0, parseFloat(document.getElementById('jitMove').value)  || 0);
+      const jitAngle = Math.max(0, parseFloat(document.getElementById('jitAngle').value) || 0);
+
+      const anchor = (document.getElementById('anchorValue').value || 'MIDDLECENTER').toUpperCase().replace(/\s+/g,'').trim();
+
+      const scriptString = `
+(function(){
+  function cID(s){ return charIDToTypeID(String(s)); }
+  function randRange(a){ return (Math.random()*2 - 1) * a; }
+  function qcs(a){
+    a = String(a||"MIDDLECENTER").toUpperCase().replace(/\\s+/g,'').trim();
+    switch(a){
+      case "TOPLEFT":       return "Qcs0";
+      case "TOPCENTER":     return "Qcs4";
+      case "TOPRIGHT":      return "Qcs1";
+      case "MIDDLELEFT":    return "Qcs7";
+      case "MIDDLECENTER":  return "Qcsa";
+      case "MIDDLERIGHT":   return "Qcs5";
+      case "BOTTOMLEFT":    return "Qcs3";
+      case "BOTTOMCENTER":  return "Qcs6";
+      case "BOTTOMRIGHT":   return "Qcs2";
+      default:              return "Qcsa";
+    }
+  }
+  function refTargetLayer(){
+    var r = new ActionReference();
+    r.putEnumerated(cID("Lyr "), cID("Ordn"), cID("Trgt"));
+    return r;
+  }
+  function duplicateActiveLayer(){
+    var d = new ActionDescriptor();
+    d.putReference(cID("null"), refTargetLayer());
+    executeAction(cID("Dplc"), d, DialogModes.NO);
+  }
+  function renameActiveLayer(name){
+    try{
+      var d = new ActionDescriptor();
+      d.putReference(cID("null"), refTargetLayer());
+      var t = new ActionDescriptor();
+      t.putString(cID("Nm  "), String(name));
+      d.putObject(cID("T   "), cID("Lyr "), t);
+      executeAction(cID("setd"), d, DialogModes.NO);
+    }catch(e){}
+  }
+  function transformActiveLayer(hPct, vPct, dxPx, dyPx, angleDeg, anchorStr){
+    var desc = new ActionDescriptor();
+    desc.putReference(cID("null"), refTargetLayer());
+    try { desc.putEnumerated(cID("FTcs"), cID("QCSt"), cID(qcs(anchorStr))); } catch(e) {}
+    var ofs = new ActionDescriptor();
+    ofs.putUnitDouble(cID("Hrzn"), cID("#Pxl"), dxPx);
+    ofs.putUnitDouble(cID("Vrtc"), cID("#Pxl"), dyPx);
+    desc.putObject(cID("Ofst"), cID("Ofst"), ofs);
+    desc.putUnitDouble(cID("Wdth"), cID("#Prc"), hPct);
+    desc.putUnitDouble(cID("Hght"), cID("#Prc"), vPct);
+    var skew = new ActionDescriptor();
+    skew.putUnitDouble(cID("Hrzn"), cID("#Ang"), 0.0);
+    skew.putUnitDouble(cID("Vrtc"), cID("#Ang"), 0.0);
+    desc.putObject(cID("Skew"), cID("Pnt "), skew);
+    desc.putUnitDouble(cID("Angl"), cID("#Ang"), angleDeg);
+    desc.putEnumerated(cID("Intr"), cID("Intp"), cID("Bcbc"));
+    executeAction(cID("transform"), desc, DialogModes.NO);
+  }
+  var copies = Math.max(1, ${copies});
+  var baseH  = (${scaleH}||100) * (${reflectX} ? -1 : 1);
+  var baseV  = (${scaleV}||100) * (${reflectY} ? -1 : 1);
+  var uniform = ${uniform};
+  var jitS = ${jitScale};
+  var jitM = ${jitMove};
+  var jitA = ${jitAngle};
+  var dxBase = ${moveH};
+  var dyBase = ${moveV};
+  var angBase = ${angle};
+  var anchor  = "${anchor}";
+  for (var i=1; i<=copies; i++){
+    duplicateActiveLayer();
+    var hS, vS;
+    if (uniform){
+      var sJ = randRange(jitS);
+      hS = baseH + sJ; vS = baseV + sJ;
+    } else {
+      hS = baseH + randRange(jitS);
+      vS = baseV + randRange(jitS);
+    }
+    var dX  = dxBase + randRange(jitM);
+    var dY  = dyBase + randRange(jitM);
+    var ang = angBase + randRange(jitA);
+    transformActiveLayer(hS, vS, dX, dY, ang, anchor);
+    renameActiveLayer("Transform_" + i);
+  }
+})();`;
+
+      console.log(scriptString);
+      window.parent.postMessage(scriptString, "*");
+      setTimeout(() => { applyBtn.disabled = false; }, 800);
+    }
+  </script>
+</body>
+</html>
