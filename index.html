@@ -128,6 +128,7 @@
       r.addEventListener('input', sync(r, n));
       n.addEventListener('input', sync(n, r));
     }
+
     function setScale(axis, v){
       if(axis === 'H'){
         document.getElementById('scaleHRange').value = v;
@@ -137,18 +138,25 @@
         document.getElementById('scaleV').value = v;
       }
     }
+
     document.addEventListener('DOMContentLoaded', () => {
-      bindPair('scaleHRange', 'scaleH', v => { if (document.getElementById('uniform').checked) setScale('V', v); });
-      bindPair('scaleVRange', 'scaleV', v => { if (document.getElementById('uniform').checked) setScale('H', v); });
+      bindPair('scaleHRange', 'scaleH', v => {
+        if (document.getElementById('uniform').checked) setScale('V', v);
+      });
+      bindPair('scaleVRange', 'scaleV', v => {
+        if (document.getElementById('uniform').checked) setScale('H', v);
+      });
       bindPair('moveHRange', 'moveH');
       bindPair('moveVRange', 'moveV');
       bindPair('angleRange', 'angle');
       bindPair('jitScaleRange', 'jitScale');
       bindPair('jitMoveRange',  'jitMove');
       bindPair('jitAngleRange', 'jitAngle');
+
       document.getElementById('uniform').addEventListener('change', (e) => {
         if (e.target.checked) setScale('V', document.getElementById('scaleH').value);
       });
+
       const grid = document.getElementById('anchorGrid');
       grid.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-anchor]');
@@ -157,6 +165,7 @@
         btn.classList.add('active');
         document.getElementById('anchorValue').value = btn.dataset.anchor;
       });
+
       document.getElementById('applyBtn').addEventListener('click', applyTransform);
     });
 
@@ -249,12 +258,7 @@
   var dyBase = ${moveV};
   var angBase = ${angle};
   var anchor  = "${anchor}";
-
-  var doc = app.activeDocument;
-  var base = doc.activeLayer;
-
   for (var i=1; i<=copies; i++){
-    doc.activeLayer = base;
     duplicateActiveLayer();
     var hS, vS;
     if (uniform){
@@ -272,6 +276,7 @@
   }
 })();`;
 
+      console.log(scriptString);
       window.parent.postMessage(scriptString, "*");
       setTimeout(() => { applyBtn.disabled = false; }, 800);
     }
