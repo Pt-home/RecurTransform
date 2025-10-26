@@ -32,7 +32,7 @@
 </head>
 <body>
   <div class="page">
-    <h3>RecurTransform1</h3>
+    <h3>RecurTransform</h3>
 
     <div class="section" id="sec-scale">
       <h4>Scale</h4>
@@ -80,7 +80,6 @@
         <label for="copies">Copies</label>
         <div class="input-wrap"><input id="copies" type="number" min="0" max="128" step="1" value="2" aria-label="Copies"></div>
       </div>
-
       <div class="anchor-wrap">
         <span class="muted">Anchor</span>
         <div class="anchor-grid" id="anchorGrid" role="radiogroup" aria-label="Anchor point">
@@ -96,6 +95,20 @@
         </div>
       </div>
       <input type="hidden" id="anchorValue" value="MIDDLECENTER">
+    </div>
+
+    <div class="section" id="sec-skew">
+      <h4>Skew</h4>
+      <div class="row">
+        <label for="skewHRange">Horizontal</label>
+        <input id="skewHRange" type="range" min="-89" max="89" step="1" value="0">
+        <div class="input-wrap"><input id="skewH" type="number" min="-89" max="89" step="1" value="0" aria-label="Skew horizontal"><span class="unit">°</span></div>
+      </div>
+      <div class="row">
+        <label for="skewVRange">Vertical</label>
+        <input id="skewVRange" type="range" min="-89" max="89" step="1" value="0">
+        <div class="input-wrap"><input id="skewV" type="number" min="-89" max="89" step="1" value="0" aria-label="Skew vertical"><span class="unit">°</span></div>
+      </div>
     </div>
 
     <div class="section" id="sec-random">
@@ -114,6 +127,11 @@
         <label for="jitAngleRange">Angle</label>
         <input id="jitAngleRange" type="range" min="0" max="180" step="1" value="0">
         <div class="input-wrap"><input id="jitAngle" type="number" min="0" max="180" step="1" value="0" aria-label="Angle jitter"><span class="unit">°</span></div>
+      </div>
+      <div class="row">
+        <label for="jitSkewRange">Skew</label>
+        <input id="jitSkewRange" type="range" min="0" max="90" step="1" value="0">
+        <div class="input-wrap"><input id="jitSkew" type="number" min="0" max="90" step="1" value="0" aria-label="Skew jitter"><span class="unit">°</span></div>
       </div>
     </div>
 
@@ -138,9 +156,12 @@
       bindPair('moveHRange', 'moveH');
       bindPair('moveVRange', 'moveV');
       bindPair('angleRange', 'angle');
+      bindPair('skewHRange', 'skewH');
+      bindPair('skewVRange', 'skewV');
       bindPair('jitScaleRange', 'jitScale');
       bindPair('jitMoveRange',  'jitMove');
       bindPair('jitAngleRange', 'jitAngle');
+      bindPair('jitSkewRange',  'jitSkew');
       document.getElementById('uniform').addEventListener('change', (e) => { if (e.target.checked) setScale('V', document.getElementById('scaleH').value); });
       const grid = document.getElementById('anchorGrid');
       grid.addEventListener('click', (e) => {
@@ -162,6 +183,8 @@
       const mH  = parseFloat(document.getElementById('moveH').value)  || 0;
       const mV  = parseFloat(document.getElementById('moveV').value)  || 0;
       const ang = parseFloat(document.getElementById('angle').value)  || 0;
+      const skH = parseFloat(document.getElementById('skewH').value)  || 0;
+      const skV = parseFloat(document.getElementById('skewV').value)  || 0;
       const copies = Math.max(0, parseInt(document.getElementById('copies').value || "0", 10));
 
       const uniform = document.getElementById('uniform').checked;
@@ -171,6 +194,7 @@
       const jS = Math.max(0, parseFloat(document.getElementById('jitScale').value) || 0);
       const jM = Math.max(0, parseFloat(document.getElementById('jitMove').value)  || 0);
       const jA = Math.max(0, parseFloat(document.getElementById('jitAngle').value) || 0);
+      const jK = Math.max(0, parseFloat(document.getElementById('jitSkew').value)  || 0);
 
       const anchor = (document.getElementById('anchorValue').value || 'MIDDLECENTER').toUpperCase().replace(/\s+/g,'').trim();
 
@@ -195,7 +219,8 @@
   function refTargetLayer(){ var r=new ActionReference(); r.putEnumerated(cID("Lyr "), cID("Ordn"), cID("Trgt")); return r; }
   function duplicateActiveLayer(){ var d=new ActionDescriptor(); d.putReference(cID("null"), refTargetLayer()); executeAction(cID("Dplc"), d, DialogModes.NO); }
   function renameActiveLayer(name){ try{ var d=new ActionDescriptor(); d.putReference(cID("null"), refTargetLayer()); var t=new ActionDescriptor(); t.putString(cID("Nm  "), String(name)); d.putObject(cID("T   "), cID("Lyr "), t); executeAction(cID("setd"), d, DialogModes.NO);}catch(e){} }
-  function transformActiveLayer(hPct, vPct, dxPx, dyPx, angleDeg, anchorStr){
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function transformActiveLayer(hPct, vPct, dxPx, dyPx, angleDeg, skewH, skewV, anchorStr){
     var desc=new ActionDescriptor();
     desc.putReference(cID("null"), refTargetLayer());
     try{ desc.putEnumerated(cID("FTcs"), cID("QCSt"), cID(qcs(anchorStr))); }catch(e){}
@@ -206,8 +231,8 @@
     desc.putUnitDouble(cID("Wdth"), cID("#Prc"), hPct);
     desc.putUnitDouble(cID("Hght"), cID("#Prc"), vPct);
     var skew=new ActionDescriptor();
-    skew.putUnitDouble(cID("Hrzn"), cID("#Ang"), 0.0);
-    skew.putUnitDouble(cID("Vrtc"), cID("#Ang"), 0.0);
+    skew.putUnitDouble(cID("Hrzn"), cID("#Ang"), clamp(skewH,-89,89));
+    skew.putUnitDouble(cID("Vrtc"), cID("#Ang"), clamp(skewV,-89,89));
     desc.putObject(cID("Skew"), cID("Pnt "), skew);
     desc.putUnitDouble(cID("Angl"), cID("#Ang"), angleDeg);
     desc.putEnumerated(cID("Intr"), cID("Intp"), cID("Bcbc"));
@@ -218,6 +243,7 @@
   var doc=app.activeDocument, base=doc.activeLayer;
   var dSH=${sH}-100, dSV=${sV}-100;
   var signX=${reflectX}?-1:1, signY=${reflectY}?-1:1;
+
   for(var i=1;i<=Math.max(1,${copies});i++){
     doc.activeLayer=base;
     duplicateActiveLayer();
@@ -225,15 +251,16 @@
     var sStepV=100 + i*dSV;
     if(${uniform}) sStepV=sStepH;
     if(${jS}>0){
-      var j=${jS};
-      if(${uniform}){ var js=rr(j); sStepH+=js; sStepV+=js; }
-      else { sStepH+=rr(j); sStepV+=rr(j); }
+      if(${uniform}){ var js=rr(${jS}); sStepH+=js; sStepV+=js; }
+      else { sStepH+=rr(${jS}); sStepV+=rr(${jS}); }
     }
     sStepH*=signX; sStepV*=signY;
     var dx=i*${mH} + rr(${jM});
     var dy=i*${mV} + rr(${jM});
     var ang=i*${ang} + rr(${jA});
-    transformActiveLayer(sStepH, sStepV, dx, dy, ang, "${anchor}");
+    var kH=i*${skH} + rr(${jK});
+    var kV=i*${skV} + rr(${jK});
+    transformActiveLayer(sStepH, sStepV, dx, dy, ang, kH, kV, "${anchor}");
     renameActiveLayer("Transform_"+i);
   }
 })();`;
