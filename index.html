@@ -76,10 +76,7 @@
         <input id="angleRange" type="range" min="-180" max="180" step="1" value="0">
         <div class="input-wrap"><input id="angle" type="number" min="-180" max="180" step="1" value="0" aria-label="Angle"><span class="unit">°</span></div>
       </div>
-      <div class="row-suffix">
-        <label for="copies">Copies</label>
-        <div class="input-wrap"><input id="copies" type="number" min="0" max="128" step="1" value="2" aria-label="Copies"></div>
-      </div>
+      
       <div class="anchor-wrap">
         <span class="muted">Anchor</span>
         <div class="anchor-grid" id="anchorGrid" role="radiogroup" aria-label="Anchor point">
@@ -134,7 +131,10 @@
         <div class="input-wrap"><input id="jitSkew" type="number" min="0" max="90" step="1" value="0" aria-label="Skew jitter"><span class="unit">°</span></div>
       </div>
     </div>
-
+    <div class="row-suffix">
+        <label for="copies">Copies</label>
+        <div class="input-wrap"><input id="copies" type="number" min="0" max="128" step="1" value="2" aria-label="Copies"></div>
+    </div>
     <button id="applyBtn" type="button" class="button">Apply Transform (New Layer)</button>
   </div>
 
@@ -273,3 +273,4 @@
   </script>
 </body>
 </html>
+
